@@ -19,7 +19,7 @@ const Login = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      dispatch(loginUser(values)).unwrap();
+      await dispatch(loginUser(values)).unwrap();
       toast.success("Login successfully!");
       navigate("/home");
 
