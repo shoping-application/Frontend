@@ -115,9 +115,9 @@ const ProductDescription = () => {
   };
 
   const handleProductDesc = (product) => {
-  navigate("/description", { state: { product } });
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
+    navigate("/description", { state: { product } });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -354,7 +354,7 @@ const ProductDescription = () => {
               <div
                 key={relatedProduct?._id}
                 className="bg-white rounded-2xl shadow-sm border hover:shadow-md transition-shadow hover:cursor-pointer duration-300"
-                onClick={()=>handleProductDesc(relatedProduct)}
+                onClick={() => handleProductDesc(relatedProduct)}
               >
                 <div className="p-2">
                   <div className="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">

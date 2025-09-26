@@ -45,6 +45,7 @@ const shopByCategory = [
 ];
 
 
+
 export default function HomePage() {
   const navigate = useNavigate()
 
@@ -61,6 +62,7 @@ export default function HomePage() {
       ratings: { average: 0, count: 0, distribution: {} },
       salesCount: 0,
       status: "active",
+      organic:true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -71,7 +73,6 @@ export default function HomePage() {
   const handleCategory = (product) => {
     navigate("/catagoryProduct", { state: { product } })
   }
-
 
 
 
@@ -134,7 +135,7 @@ export default function HomePage() {
               <div
                 key={idx}
                 className="bg-white p-3 px-2 rounded-lg shadow-md flex flex-col items-center group"
-                onClick={() => handleProduct(p)}
+                // onClick={() => handleProduct(p)}
               >
                 {/* Image container with overflow-hidden */}
                 <div className="w-full h-48 overflow-hidden rounded-md mb-3">
@@ -148,9 +149,7 @@ export default function HomePage() {
                 <h3 className="font-medium text-gray-800">{p.name}</h3>
                 <p className="text-sm text-gray-500">{p.weight}</p>
                 <p className="text-lg font-bold text-gray-800">₹ {p.price}</p>
-                <button className="mt-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                  Add to Cart
-                </button>
+             
               </div>
             ))}
           </div>
