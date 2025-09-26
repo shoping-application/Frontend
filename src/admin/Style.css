@@ -1,0 +1,8 @@
+.wide-modal .ant-modal {
+  width: 80% !important;
+  max-width: 1200px;
+}
+
+.wide-modal .ant-modal-content {
+  width: 100%;
+}
