@@ -261,7 +261,7 @@ const CategoryProduct = () => {
               <Button
                 type="primary"
                 className="mt-4 bg-green-600 py-5 border-green-600 hover:!bg-green-700"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
               >
                 Back to Home
               </Button>
