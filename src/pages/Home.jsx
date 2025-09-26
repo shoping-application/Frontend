@@ -4,7 +4,7 @@ import { Navigate, NavLink, useNavigate } from "react-router-dom";
 
 import Farm from "../assets/Farm.png";
 import Pantry from "../assets/Pantry.png";
-import Snacks from "../assets/snacks.png";
+import Snacks from "../assets/Snacks.png";
 import Premium_Dairy from "../assets/Premium_Dairy.png";
 import Apple from "../assets/Apples.jpeg"
 import Milk from "../assets/Milk.jpg"
