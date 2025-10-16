@@ -40,7 +40,7 @@ const Product = () => {
       // Set cursor at the end of the text
       const input = searchInputRef.current.input;
       if (input) {
-        const length = input.value.length;
+        const length = input.value?.length;
         input.setSelectionRange(length, length);
       }
     }
@@ -59,7 +59,7 @@ const Product = () => {
 
   // Get categories and brands from searchedProduct if available, otherwise from products
   const getFilterData = () => {
-    const sourceData = searchedProduct.length > 0 ? searchedProduct : products;
+    const sourceData = searchedProduct?.length > 0 ? searchedProduct : products;
     
     const categories = [...new Set(sourceData?.map(product => product.category) || [])]
       .filter(category => category)
@@ -109,7 +109,7 @@ const Product = () => {
 
   // Filter logic for both searched products and regular products
   const getFilteredProducts = () => {
-    const sourceData = searchedProduct.length > 0 ? searchedProduct : products;
+    const sourceData = searchedProduct?.length > 0 ? searchedProduct : products;
     
     return sourceData?.filter(product => {
       if (!product) return false;
@@ -120,7 +120,7 @@ const Product = () => {
       }
 
       // Category filter - compare with original case
-      if (filters.categories.length > 0) {
+      if (filters.categories?.length > 0) {
         // Map displayed categories back to original case for comparison
         const originalCategory = originalCategories.find(origCat =>
           origCat.split(' ')
@@ -134,12 +134,12 @@ const Product = () => {
       }
 
       // Brand filter
-      if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
+      if (filters?.brands?.length > 0 && !filters.brands.includes(product.brand)) {
         return false;
       }
 
       // Dietary preferences filter
-      if (filters.dietary.length > 0) {
+      if (filters?.dietary?.length > 0) {
         if (filters.dietary.includes('Organic') && !product.organic) {
           return false;
         }
@@ -147,7 +147,7 @@ const Product = () => {
       }
 
       // Ratings filter
-      if (filters.ratings.length > 0 && !filters.ratings.some(rating =>
+      if (filters?.ratings?.length > 0 && !filters.ratings.some(rating =>
         product.ratings?.average >= rating
       )) {
         return false;
@@ -223,7 +223,7 @@ const Product = () => {
 
   // Clear filters when search results change
   useEffect(() => {
-    if (searchedProduct.length > 0) {
+    if (searchedProduct?.length > 0) {
       setFilters({
         categories: [],
         brands: [],
@@ -387,9 +387,9 @@ const Product = () => {
               {/* Results Header */}
               <div className="flex justify-between items-center mb-6 mt-4">
                 <Text className="text-gray-600">
-                  {searchedProduct.length > 0 
-                    ? `Showing ${filteredProducts.length} of ${searchedProduct.length} search results`
-                    : `Showing ${filteredProducts.length} of ${products?.length || 0} products`
+                  {searchedProduct?.length > 0 
+                    ? `Showing ${filteredProducts?.length} of ${searchedProduct?.length} search results`
+                    : `Showing ${filteredProducts?.length} of ${products?.length || 0} products`
                   }
                 </Text>
               </div>
@@ -403,7 +403,7 @@ const Product = () => {
                       onClick={() => handleProductDesc(product)}
                       cover={
                         <div className="h-48 overflow-hidden relative bg-gray-100">
-                          {product.images && product.images.length > 0 ? (
+                          {product.images && product?.images?.length > 0 ? (
                             <img
                               alt={product.name}
                               src={product.images.find(img => img.isPrimary)?.url || product.images[0].url}
@@ -526,11 +526,11 @@ const Product = () => {
                 ))}
               </Row>
 
-              {filteredProducts.length === 0 && (
+              {filteredProducts?.length === 0 && (
                 <div className="text-center py-16">
                   <div className="text-6xl mb-4">🍎</div>
                   <Title level={4} className="!text-gray-600">
-                    {searchedProduct.length > 0 
+                    {searchedProduct?.length > 0 
                       ? "No search results found matching your filters"
                       : "No products found matching your filters"
                     }
