@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getProduct, updateProduct, createOrder } from "../thunk/productThunk";
+import { getProduct, updateProduct, createOrder, search } from "../thunk/productThunk";
 
 const productSlice = createSlice({
   name: "product",
@@ -8,7 +8,9 @@ const productSlice = createSlice({
     product: [],
     error: null,
     success: false,
-    order:null
+    order:null,
+    searchedProduct:[],
+    searchLoading:false,
   },
   reducers: {
     resetProduct: (state) => {
@@ -58,6 +60,23 @@ const productSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+        state.success = false;
+      })
+
+
+      .addCase(search.pending, (state) => {
+        state.searchLoading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(search.fulfilled, (state, action) => {
+        state.searchLoading = false;
+        state.searchedProduct = action.payload;
+        state.success = true;
+      })
+      .addCase(search.rejected, (state, action) => {
+        state.searchLoading = false;
         state.error = action.payload;
         state.success = false;
       })

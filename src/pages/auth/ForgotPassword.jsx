@@ -23,7 +23,7 @@ const ForgotPassword = () => {
         setLoading(true);
         try {
             dispatch(forgotPassword(values)).unwrap();
-            toast.success("Login successfully!");
+            toast.success("Email sent sucessfully!");
             // Navigate("/home");
             setSubmitted(true)
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate} from "react-router-dom";
 import {
   StarFilled,
   HeartOutlined,
@@ -226,14 +226,14 @@ const ProductDescription = () => {
                 <div className="flex items-center border rounded-lg bg-white">
                   <Button
                     onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                    className="w-12 h-12 text-xl font-bold border-none"
+                    className="w-12 h-12 text-xl font-bold border-none hover:!text-green-600 hover:!bg-transparent"
                   >
                     -
                   </Button>
                   <span className="w-12 text-center font-semibold">{quantity}</span>
                   <Button
                     onClick={() => setQuantity(prev => prev + 1)}
-                    className="w-12 h-12 text-xl font-bold border-none"
+                    className="w-12 h-12 text-xl font-bold border-none hover:!text-green-600 hover:!bg-transparent"
                   >
                     +
                   </Button>
@@ -258,7 +258,7 @@ const ProductDescription = () => {
                   icon={<ShareAltOutlined className="text-gray-500 group-hover:text-green-600 transition-colors" />}
                   onClick={shareProduct}
                   size="large"
-                  className="h-14 w-14 border-gray-300 hover:!border-green-700"
+                  className="h-12 w-14 border-gray-300 hover:!border-green-700"
                 />
               </div>
             </div>
@@ -350,7 +350,7 @@ const ProductDescription = () => {
           <h2 className="text-2xl font-bold mb-8 text-green-700">You Might Also Like</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {relatedProducts?.map((relatedProduct) => (
+            {relatedProducts?.slice(0, 12).map((relatedProduct) => (
               <div
                 key={relatedProduct?._id}
                 className="bg-white rounded-2xl shadow-sm border hover:shadow-md transition-shadow hover:cursor-pointer duration-300"
@@ -376,10 +376,15 @@ const ProductDescription = () => {
                     </span>
 
                   </div>
+
+
                 </div>
+
+
               </div>
             ))}
           </div>
+
         </div>
 
       </div>

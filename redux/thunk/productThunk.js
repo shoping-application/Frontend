@@ -6,11 +6,14 @@ const getProduct = createAsyncThunk(
   "product/getProduct",
   async (catagory, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/products/get-product/${catagory}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const res = await axios.get(
+        `${BASE_URL}/api/products/get-product/${catagory}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       if (res.status === 200 && res.data.success === true) {
         console.log("res", res?.data?.products);
@@ -30,11 +33,15 @@ const createProduct = createAsyncThunk(
   "product/createProduct",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/products/create-product`,values, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const res = await axios.post(
+        `${BASE_URL}/api/products/create-product`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       console.log("res", res);
       if (res.status === 200 && res.data.success === true) {
@@ -49,17 +56,20 @@ const createProduct = createAsyncThunk(
     }
   }
 );
-
 
 const updateProduct = createAsyncThunk(
   "product/updateProduct",
-  async ({id, ...values}, { rejectWithValue }) => {
+  async ({ id, ...values }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/products/update-product/${id}`,values, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const res = await axios.post(
+        `${BASE_URL}/api/products/update-product/${id}`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       console.log("res", res);
       if (res.status === 200 && res.data.success === true) {
@@ -75,16 +85,19 @@ const updateProduct = createAsyncThunk(
   }
 );
 
-
 const createOrder = createAsyncThunk(
   "product/createOrder",
-  async ({values}, { rejectWithValue }) => {
+  async ({ values }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/products/create-order`,values, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const res = await axios.post(
+        `${BASE_URL}/api/products/create-order`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       console.log("res", res);
       if (res.status === 200 && res.data.success === true) {
@@ -132,6 +145,32 @@ const verifyPayment = createAsyncThunk(
   }
 );
 
+const search = createAsyncThunk(
+  "product/search",
+  async (value, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/api/products/search?query=${encodeURIComponent(value)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
+      console.log("search", res);
 
-export {getProduct, createProduct, updateProduct, createOrder, verifyPayment };
+      if (res.status === 200 && res.data.success === true) {
+        return res?.data?.products;
+      } else {
+        return rejectWithValue("Unexpected response.");
+      }
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Server error, please try again."
+      );
+    }
+  }
+);
+
+export { getProduct, createProduct, updateProduct, createOrder, verifyPayment, search };

@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Checkbox, Slider, Button, Rate, Spin, Row, Col, Typography, Tag } from 'antd';
-import { FilterOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { Card, Checkbox, Slider, Button, Input, Rate, Spin, Row, Col, Typography, Tag } from 'antd';
+import { FilterOutlined, ShoppingCartOutlined, ShareAltOutlined, StarFilled } from '@ant-design/icons';
 import Header from './header/Header';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProduct } from "../../redux/thunk/productThunk";
+import { getProduct, search } from "../../redux/thunk/productThunk";
 import { addToCart } from "../../redux/thunk/cartThunk";
+import { useNavigate, useLocation } from "react-router-dom";
+import debounce from "lodash.debounce";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,12 +15,36 @@ const { Title, Text } = Typography;
 
 const Product = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]);
+  const location = useLocation();
+  const initialQuery = location.state?.query || "";
+
+  const [query, setQuery] = useState(initialQuery);
+  const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const { product: products, loading } = useSelector((state) => state.product);
+  const { searchedProduct } = useSelector((state) => state.product);
 
-  console.log("products products", products);
+  useEffect(() => {
+    if (query) {
+      dispatch(search(query));
+    }
+  }, [dispatch, query]);
+
+  // Auto-focus search input when initialQuery has value
+  useEffect(() => {
+    if (initialQuery && searchInputRef.current) {
+      searchInputRef.current.focus();
+      // Set cursor at the end of the text
+      const input = searchInputRef.current.input;
+      if (input) {
+        const length = input.value.length;
+        input.setSelectionRange(length, length);
+      }
+    }
+  }, [initialQuery]);
 
   const [filters, setFilters] = useState({
     categories: [],
@@ -29,28 +55,34 @@ const Product = () => {
 
   useEffect(() => {
     dispatch(getProduct());
-
   }, [dispatch]);
 
+  // Get categories and brands from searchedProduct if available, otherwise from products
+  const getFilterData = () => {
+    const sourceData = searchedProduct.length > 0 ? searchedProduct : products;
+    
+    const categories = [...new Set(sourceData?.map(product => product.category) || [])]
+      .filter(category => category)
+      .map(category =>
+        category.split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      );
 
-  const categories = [...new Set(products?.map(product => product.category) || [])]
-    .filter(category => category) // Remove empty/null categories
-    .map(category =>
-      category.split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-    );
+    const brands = [...new Set(sourceData?.map(product => product.brand) || [])]
+      .filter(brand => brand);
 
-  // Get unique brands from products
-  const brands = [...new Set(products?.map(product => product.brand) || [])]
-    .filter(brand => brand); // Remove empty/null brands
+    // Initialize categories with original case for filtering
+    const originalCategories = [...new Set(sourceData?.map(product => product.category) || [])]
+      .filter(category => category);
+
+    return { categories, brands, originalCategories };
+  };
+
+  const { categories, brands, originalCategories } = getFilterData();
 
   const dietaryPreferences = ['Organic', 'Gluten-Free', 'Vegan'];
   const ratings = [4, 3];
-
-  // Initialize categories with original case for filtering
-  const originalCategories = [...new Set(products?.map(product => product.category) || [])]
-    .filter(category => category);
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
@@ -65,90 +97,6 @@ const Product = () => {
     setPriceRange(value);
   };
 
-
-  // const products = [
-  //   {
-  //     id: 1,
-  //     name: 'Organic Apples',
-  //     price: 2.99,
-  //     unit: 'lb',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Fresh Farms',
-  //     dietary: ['Organic'],
-  //     rating: 4.5
-  //   },
-  //   {
-  //     id: 2,
-  //     name: 'Bananas',
-  //     price: 0.59,
-  //     unit: 'lb',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Nature\'s Best',
-  //     dietary: [],
-  //     rating: 4.2
-  //   },
-  //   {
-  //     id: 3,
-  //     name: 'Strawberries',
-  //     price: 3.49,
-  //     unit: 'lb',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Fresh Farms',
-  //     dietary: ['Organic'],
-  //     rating: 4.7
-  //   },
-  //   {
-  //     id: 4,
-  //     name: 'Grapes',
-  //     price: 2.79,
-  //     unit: 'lb',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Nature\'s Best',
-  //     dietary: [],
-  //     rating: 4.0
-  //   },
-  //   {
-  //     id: 5,
-  //     name: 'Oranges',
-  //     price: 1.29,
-  //     unit: 'lb',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Fresh Farms',
-  //     dietary: [],
-  //     rating: 4.3
-  //   },
-  //   {
-  //     id: 6,
-  //     name: 'Mangoes',
-  //     price: 1.99,
-  //     unit: 'lb',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Nature\'s Best',
-  //     dietary: [],
-  //     rating: 4.6
-  //   },
-  //   {
-  //     id: 7,
-  //     name: 'Watermelon',
-  //     price: 4.99,
-  //     unit: 'each',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Fresh Farms',
-  //     dietary: [],
-  //     rating: 4.1
-  //   },
-  //   {
-  //     id: 8,
-  //     name: 'Pineapple',
-  //     price: 2.49,
-  //     unit: 'each',
-  //     category: 'Fruits & Vegetables',
-  //     brand: 'Nature\'s Best',
-  //     dietary: [],
-  //     rating: 4.4
-  //   }
-  // ];
-
   const clearAllFilters = () => {
     setFilters({
       categories: [],
@@ -156,70 +104,63 @@ const Product = () => {
       dietary: [],
       ratings: []
     });
-    setPriceRange([0, 100]);
+    setPriceRange([0, 1000]);
   };
 
-  const filteredProducts = products?.filter(product => {
-    if (!product) return false;
+  // Filter logic for both searched products and regular products
+  const getFilteredProducts = () => {
+    const sourceData = searchedProduct.length > 0 ? searchedProduct : products;
+    
+    return sourceData?.filter(product => {
+      if (!product) return false;
 
-    // Price filter
-    if (product.price < priceRange[0] || product.price > priceRange[1]) {
-      return false;
-    }
-
-    // Category filter - compare with original case
-    if (filters.categories.length > 0) {
-      // Map displayed categories back to original case for comparison
-      const originalCategory = originalCategories.find(origCat =>
-        origCat.split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ') === filters.categories[0]
-      );
-
-      if (originalCategory && product.category !== originalCategory) {
+      // Price filter
+      if (product.price < priceRange[0] || product.price > priceRange[1]) {
         return false;
       }
-    }
 
-    // Brand filter
-    if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
-      return false;
-    }
+      // Category filter - compare with original case
+      if (filters.categories.length > 0) {
+        // Map displayed categories back to original case for comparison
+        const originalCategory = originalCategories.find(origCat =>
+          origCat.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ') === filters.categories[0]
+        );
 
-    // Dietary preferences filter
-    if (filters.dietary.length > 0) {
-      if (filters.dietary.includes('Organic') && !product.organic) {
+        if (originalCategory && product.category !== originalCategory) {
+          return false;
+        }
+      }
+
+      // Brand filter
+      if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
         return false;
       }
-      // Add other dietary filters as needed
-    }
 
-    // Ratings filter
-    if (filters.ratings.length > 0 && !filters.ratings.some(rating =>
-      product.ratings?.average >= rating
-    )) {
-      return false;
-    }
+      // Dietary preferences filter
+      if (filters.dietary.length > 0) {
+        if (filters.dietary.includes('Organic') && !product.organic) {
+          return false;
+        }
+        // Add other dietary filters as needed
+      }
 
-    return true;
-  }) || [];
+      // Ratings filter
+      if (filters.ratings.length > 0 && !filters.ratings.some(rating =>
+        product.ratings?.average >= rating
+      )) {
+        return false;
+      }
 
-  // Display loading state
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <div className="bg-green-50 min-h-screen flex items-center justify-center">
-          <Spin size="large" />
-        </div>
-      </>
-    );
-  }
+      return true;
+    }) || [];
+  };
 
+  const filteredProducts = getFilteredProducts();
 
   const handleAddCart = (product, e) => {
     e.stopPropagation(); // Prevent card click event
-
 
     const quantity = 1;
 
@@ -235,7 +176,6 @@ const Product = () => {
       .unwrap()
       .then(() => {
         toast.success(`${quantity} ${product.name} added to cart successfully!`);
-
       })
       .catch((err) => {
         console.error("Add to cart error:", err);
@@ -243,20 +183,73 @@ const Product = () => {
       });
   };
 
+  const shareProduct = (product) => {
+    const productUrl = `${window.location.origin}/product/${product._id}`;
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: product.description,
+        url: productUrl,
+      }).catch((err) => console.error("Share failed:", err));
+    } else {
+      navigator.clipboard.writeText(productUrl);
+      toast.success("Product link copied to clipboard!");
+    }
+  };
 
-  
+  const handleProductDesc = (product) => {
+    navigate("/description", { state: { product } });
+  };
+
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((val) => {
+        dispatch(search(val));
+      }, 400),
+    [dispatch]
+  );
+
+  // ✅ Handle input change
+  const handleSearch = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setQuery(value);
+
+      // Always call debounce even if empty (so search results update)
+      debouncedSearch(value);
+    },
+    [debouncedSearch]
+  );
+
+  // Clear filters when search results change
+  useEffect(() => {
+    if (searchedProduct.length > 0) {
+      setFilters({
+        categories: [],
+        brands: [],
+        dietary: [],
+        ratings: []
+      });
+    }
+  }, [searchedProduct]);
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="bg-green-50 min-h-screen flex items-center justify-center">
+          <Spin size="large" />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Header />
+
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Page Title */}
-          <div className="text-center mb-8">
-            <Title level={1} className="!text-green-600 !mb-2">FreshCart</Title>
-            <Text className="text-gray-600 text-lg">Fresh groceries delivered to your doorstep</Text>
-          </div>
-
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters Sidebar */}
             <div className="lg:w-1/5">
@@ -267,7 +260,7 @@ const Product = () => {
                       <FilterOutlined className="mr-2" />
                       Filters
                     </span>
-                    <Button type="link" onClick={clearAllFilters} className="!p-0 !h-auto">
+                    <Button type="link" onClick={clearAllFilters} className="!p-0 !h-auto !text-green-700 !hover:text-green-900">
                       Clear all
                     </Button>
                   </div>
@@ -372,15 +365,33 @@ const Product = () => {
 
             {/* Products Grid */}
             <div className="lg:w-4/5">
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-green-600">FreshCart</h1>
+                </div>
+
+                {/* Search input on the right */}
+                <div className="flex-1 flex justify-end">
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search for groceries, products..."
+                    value={query}
+                    onChange={handleSearch}
+                    autoFocus={!!initialQuery} // Auto-focus when there's an initial query
+                    className="w-full md:w-1/2 border rounded-full px-5 py-2 shadow-sm focus:outline-green-500"
+                  />
+                </div>
+              </div>
+
+              {/* Results Header */}
+              <div className="flex justify-between items-center mb-6 mt-4">
                 <Text className="text-gray-600">
-                  Showing {filteredProducts.length} of {products?.length || 0} products
+                  {searchedProduct.length > 0 
+                    ? `Showing ${filteredProducts.length} of ${searchedProduct.length} search results`
+                    : `Showing ${filteredProducts.length} of ${products?.length || 0} products`
+                  }
                 </Text>
-                {/* <div className="flex items-center space-x-2">
-                  <Text className="text-gray-600">Sort by:</Text>
-                  <Button type="default" size="small" onClick={() => setSortBy('price_asc')}>Price: Low to High</Button>
-                  <Button type="default" size="small" onClick={() => setSortBy('price_desc')}>Price: High to Low</Button>
-                </div> */}
               </div>
 
               <Row gutter={[24, 24]}>
@@ -389,7 +400,7 @@ const Product = () => {
                     <Card
                       hoverable
                       className="h-full border-0 shadow-sm hover:shadow-md transition-shadow duration-300"
-                      // onClick={() => handleProductDesc(product)}
+                      onClick={() => handleProductDesc(product)}
                       cover={
                         <div className="h-48 overflow-hidden relative bg-gray-100">
                           {product.images && product.images.length > 0 ? (
@@ -454,51 +465,40 @@ const Product = () => {
                             )}
                           </div>
 
-                          {/* Stock Status */}
-                          <div className="mb-3">
+                          <div className="mb-2">
                             {product.status === 'active' ? (
-                              <Text type="success" className="text-sm flex items-center">
-                                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                In Stock
+                              <Text type="success" className="text-xs">
+                                ✓ In Stock
                               </Text>
                             ) : (
-                              <Text type="danger" className="text-sm flex items-center">
-                                <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                Out of Stock
+                              <Text type="danger" className="text-xs">
+                                ✗ Out of Stock
                               </Text>
                             )}
                           </div>
 
                           {/* Rating */}
-                          {product.ratings?.average > 0 ? (
-                            <div className="flex items-center mt-2">
-                              <div className="flex mr-1">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                  <span
-                                    key={star}
-                                    className={
-                                      star <= Math.floor(product.ratings.average)
-                                        ? 'text-yellow-400 text-xs'
-                                        : 'text-gray-300 text-xs'
-                                    }
-                                  >
-                                    ⭐
-                                  </span>
-                                ))}
-                              </div>
-                              <Text type="secondary" className="text-xs">
-                                ({product.ratings.count || 0})
-                              </Text>
+                          <div className="flex items-center mb-2">
+                            <div className="flex mr-2">
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <StarFilled
+                                  key={star}
+                                  className={
+                                    star <= Math.floor(product.ratings?.average || 0)
+                                      ? 'text-yellow-400 text-sm'
+                                      : 'text-gray-300 text-sm'
+                                  }
+                                />
+                              ))}
                             </div>
-                          ) : (
-                            <Text type="secondary" className="text-xs mt-2">
-                              No ratings yet
+                            <Text type="secondary" className="text-xs">
+                              ({product.ratings?.count || 0})
                             </Text>
-                          )}
+                          </div>
                         </div>
 
                         {/* Add to Cart Button */}
-                        <div className="mt-4 pt-3 border-t border-gray-100">
+                        <div className="flex items-center justify-between mt-3 w-full space-x-2">
                           <Button
                             type="primary"
                             className="w-full bg-green-600 border-green-600 hover:!bg-green-700 hover:!border-green-700 h-10 font-medium"
@@ -511,6 +511,14 @@ const Product = () => {
                           >
                             Add to Cart
                           </Button>
+                          <Button
+                            icon={
+                              <ShareAltOutlined className="text-gray-500 group-hover:text-green-600 transition-colors" />
+                            }
+                            onClick={() => shareProduct(product)}
+                            size="middle"
+                            className="h-10 w-10 flex items-center justify-center border-gray-300 hover:!border-green-600 rounded-md"
+                          />
                         </div>
                       </div>
                     </Card>
@@ -522,7 +530,10 @@ const Product = () => {
                 <div className="text-center py-16">
                   <div className="text-6xl mb-4">🍎</div>
                   <Title level={4} className="!text-gray-600">
-                    No products found matching your filters
+                    {searchedProduct.length > 0 
+                      ? "No search results found matching your filters"
+                      : "No products found matching your filters"
+                    }
                   </Title>
                   <Text className="text-gray-500">
                     Try adjusting your filters to see more results

@@ -1,15 +1,13 @@
-import React from "react";
+import React, { useEffect, useState} from "react";
 import { ShoppingCart, Search } from "lucide-react";
-import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Spin, Button, Input } from 'antd';
 
 import Farm from "../assets/Farm.png";
 import Pantry from "../assets/Pantry.png";
 import Snacks from "../assets/Snacks.png";
 import Premium_Dairy from "../assets/Premium_Dairy.png";
-import Apple from "../assets/Apples.jpeg"
-import Milk from "../assets/Milk.jpg"
-import Chips from "../assets/Chips.jpeg"
-import Water from "../assets/Water.jpeg"
+
 import TeaCoffee from "../assets/Tea,Coffee.jpg"
 import Packaged_Food from "../assets/packaged-food.png"
 import Atta_Rice_Oil from "../assets/Atta_Rice_Oil.jpg"
@@ -18,7 +16,20 @@ import Biscuits_Cookies from "../assets/Biscuits&Cookies.webp"
 import Skincare from "../assets/Skincare.jpeg"
 import Ice_Creams from "../assets/Ice_Creams.webp"
 
+import { useDispatch, useSelector } from 'react-redux';
+import { getProduct} from "../../redux/thunk/productThunk";
+
+import { addToCart } from "../../redux/thunk/cartThunk"
+
 import Header from "./header/Header";
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import {
+  ShoppingCartOutlined,
+  ShareAltOutlined
+} from '@ant-design/icons';
 
 
 const categories = [
@@ -27,54 +38,101 @@ const categories = [
   { name: "Snacks & Drinks", catagory: "Snacks & Drinks", img: Snacks },
   { name: "Pantry Staples", catagory: "Pantry Staples", img: Pantry },
 ];
-const featuredProducts = [
-  { name: "Organic Apples", weight: "1kg", price: "53.49", img: Apple },
-  { name: "Whole Milk", weight: "1 Gallon", price: "92.99", img: Milk },
-  { name: "Potato Chips", weight: "Classic", price: "111.99", img: Chips },
-  { name: "Sparkling Water", weight: "Lemon", price: "154.29", img: Water },
-];
+
 
 const shopByCategory = [
   { name: "Tea,Coffee & More", catagory: "tea & coffee", img: TeaCoffee },
   { name: "Packaged Food", catagory: "Packaged Food", img: Packaged_Food },
-  { name: "Atta,Rice & Oil", img: Atta_Rice_Oil },
-  { name: "Dairy,Bread & Eggs", img: Dairy_Bread_Eggs },
-  { name: "Ice Creams", img: Ice_Creams },
-  { name: "Biscuits & Cookies", img: Biscuits_Cookies },
-  { name: "Skincare", img: Skincare },
+  { name: "Atta,Rice & Oil", catagory: "Atta,Rice & Oil", img: Atta_Rice_Oil },
+  { name: "Dairy,Bread & Eggs", catagory: "Dairy,Bread & Eggs", img: Dairy_Bread_Eggs },
+  { name: "Ice Creams", catagory: "Ice Creams", img: Ice_Creams },
+  { name: "Biscuits & Cookies", catagory: "Biscuits & Cookies", img: Biscuits_Cookies },
+  { name: "Skincare", catagory: "Skincare", img: Skincare },
 ];
 
 
 
 export default function HomePage() {
+
+  const [query, setQuery] = useState("");
+
+  //searchedProduct
+
   const navigate = useNavigate()
+  const dispatch = useDispatch();
 
-  const handleProduct = (p) => {
-    const product = {
-      _id: Date.now().toString(), // temporary id
-      name: p.name,
-      description: p.description || "No description available",
-      price: parseFloat(p.price),
-      weight: { value: parseFloat(p.weight), unit: p.weight.replace(/[0-9.]/g, "").trim() || "kg" },
-      brand: p.brand || "Unknown",
-      category: p.category || "Misc",
-      images: [{ url: p.img }], // wrap single image into an array
-      ratings: { average: 0, count: 0, distribution: {} },
-      salesCount: 0,
-      status: "active",
-      organic:true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    navigate("/description", { state: { product } });
-  }
+  const { product: featuredProducts, loading } = useSelector((state) => state.product);
 
+  const { searchedProduct } = useSelector((state) => state.product);
+
+  console.log("searchedProduct", searchedProduct);
+
+  useEffect(() => {
+    dispatch(getProduct());
+
+  }, [dispatch]);
 
   const handleCategory = (product) => {
     navigate("/catagoryProduct", { state: { product } })
   }
 
+  const handleProductDesc = (product) => {
+    navigate("/description", { state: { product } });
+  };
 
+  const handleAddToCart = (product) => {
+    dispatch(addToCart({
+      product: product._id,
+      quantity: 1, // or any selected quantity
+    }))
+      .unwrap()
+      .then(() => {
+        toast.success(`${product.name} added to cart`);
+      })
+      .catch((err) => {
+        toast.error(err || "Failed to add to cart");
+      });
+  };
+
+  const shareProduct = (product) => {
+    const productUrl = `${window.location.origin}/product/${product._id}`;
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: product.description,
+        url: productUrl,
+      }).catch((err) => console.error("Share failed:", err));
+    } else {
+      navigator.clipboard.writeText(productUrl);
+      toast.success("Product link copied to clipboard!");
+    }
+  };
+
+
+
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    // Redirect to /product when typing starts
+    if (value.trim()) {
+      navigate("/product", { state: { query: value } }); // pass query to product page
+    }
+  };
+
+
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="bg-green-50 min-h-screen flex items-center justify-center">
+          <Spin size="large" />
+        </div>
+      </>
+    );
+  }
 
   return (
     <div>
@@ -86,9 +144,11 @@ export default function HomePage() {
 
         {/* Search */}
         <div className="flex justify-center mt-0 pt-5 my-6">
-          <input
+          <Input
             type="text"
             placeholder="Search for groceries, products..."
+            value={query}
+            onChange={handleSearch}
             className="w-2/3 md:w-1/2 border rounded-full px-5 py-3 shadow-sm focus:outline-green-500"
           />
         </div>
@@ -122,22 +182,26 @@ export default function HomePage() {
             <NavLink
               to="/product"
               className={({ isActive }) =>
-                isActive
-                  ? "text-green-500 font-bold"
-                  : "text-green-700 font-medium"
+                // isActive
+                // ? " font-bold"
+                // : "hover:text-green-500 font-medium text-underline"
+
+                `text-green-600 transition-colors duration-200 ${isActive
+                  ? "font-bold underline underline-offset-4"
+                  : "font-medium hover:text-green-800 hover:underline"
+                }`
               }
             >
               View All
             </NavLink>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 ">
-            {featuredProducts.map((p, idx) => (
+          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6 ">
+             {featuredProducts.map((p, idx) => (
               <div
                 key={idx}
                 className="bg-white p-3 px-2 rounded-lg shadow-md flex flex-col items-center group"
-                // onClick={() => handleProduct(p)}
+              // onClick={() => handleProduct(p)}
               >
-                {/* Image container with overflow-hidden */}
                 <div className="w-full h-48 overflow-hidden rounded-md mb-3">
                   <img
                     src={p.img}
@@ -149,10 +213,117 @@ export default function HomePage() {
                 <h3 className="font-medium text-gray-800">{p.name}</h3>
                 <p className="text-sm text-gray-500">{p.weight}</p>
                 <p className="text-lg font-bold text-gray-800">₹ {p.price}</p>
-             
+
+              </div>
+            ))} 
+          </div> */}
+          {/* 
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {featuredProducts.slice(0, 5).map((p, idx) => (
+              <div
+                key={p._id || idx}
+                className="bg-white p-3 px-2 rounded-lg shadow-md flex flex-col items-center group cursor-pointer"
+
+              >
+
+                <div
+                  onClick={() => handleProductDesc(p)}
+                >
+
+                  <div className="w-full h-48 overflow-hidden rounded-md mb-3">
+                    <img
+                      src={p.images?.[0]?.url || p.img}
+                      alt={p.name}
+                      className="w-full h-full object-cover transform transition-transform duration-300 ease-in-out group-hover:scale-125"
+                    />
+                  </div>
+
+                  <h3 className="font-medium text-gray-800">{p.name}</h3>
+                  <p className="text-sm text-gray-500">
+                    {p.weight?.value} {p.weight?.unit}
+                  </p>
+                  <p className="text-lg font-bold text-gray-800">₹ {p.price}</p>
+
+                </div>
+                <div className="flex space-x-3">
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    onClick={handleAddToCart}
+                    size="large"
+                    className="flex-1 h-12 text-lg font-semibold bg-green-600 hover:!bg-green-700 border-none"
+                  >
+                    Add to Cart
+                  </Button>
+                  <Button
+                    icon={<ShareAltOutlined className="text-gray-500 group-hover:text-green-600 transition-colors" />}
+                    onClick={shareProduct}
+                    size="large"
+                    className="h-14 w-14 border-gray-300 hover:!border-green-700"
+                  />
+                </div>
+              </div>
+            ))}
+          </div> */}
+
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {featuredProducts.slice(0, 5).map((p, idx) => (
+              <div
+                key={p._id || idx}
+                className="bg-white p-3 rounded-xl shadow-md flex flex-col items-center group hover:shadow-lg transition-all cursor-pointer"
+              >
+                {/* Clickable image & product info */}
+                <div
+                  onClick={() => handleProductDesc(p)}
+                  className="w-full text-center"
+                >
+                  <div className="w-full h-48 overflow-hidden rounded-md mb-3">
+                    <img
+                      src={p.images?.[0]?.url || p.img}
+                      alt={p.name}
+                      className="w-full h-full object-cover transform transition-transform duration-300 ease-in-out group-hover:scale-110"
+                    />
+                  </div>
+
+                  <h3 className="font-semibold text-gray-800 group-hover:text-green-700">
+                    {p.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {p.weight?.value} {p.weight?.unit}
+                  </p>
+                  <p className="text-lg font-bold text-gray-800 mt-1">
+                    ₹ {p.price}
+                  </p>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex items-center justify-between mt-3 w-full space-x-2">
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    onClick={() => handleAddToCart(p)}
+                    size="middle"
+                    className="flex-1 h-10 text-sm font-semibold bg-green-600 hover:!bg-green-700 border-none"
+                  >
+                    Add to Cart
+                  </Button>
+
+                  <Button
+                    icon={
+                      <ShareAltOutlined className="text-gray-500 group-hover:text-green-600 transition-colors" />
+                    }
+                    onClick={() => shareProduct(p)}
+                    size="middle"
+                    className="h-10 w-10 flex items-center justify-center border-gray-300 hover:!border-green-600 rounded-md"
+                  />
+                </div>
               </div>
             ))}
           </div>
+
+
+
         </div>
 
         {/* Shop by Category */}
