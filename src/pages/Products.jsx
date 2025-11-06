@@ -432,7 +432,7 @@ const Product = () => {
 
               <Row gutter={[24, 24]}>
                 {filteredProducts.map(product => (
-                  <Col xs={24} sm={12} md={8} lg={6} key={product._id}>
+                  <Col xs={24} sm={12} md={12} lg={8} xl={6} xxl={4} key={product._id}>
                     <Card
                       hoverable
                       className="h-full border-0 shadow-sm hover:shadow-md transition-shadow duration-300"
