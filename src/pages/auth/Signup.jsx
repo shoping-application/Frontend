@@ -1,10 +1,16 @@
-import React, {  useState } from 'react';
-import { Form, Input, Button, Checkbox, Card, Divider, Modal} from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Checkbox, Card, Divider, Modal } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './style.css';
 import { signupUser } from "../../../redux/thunk/authThunk"
 import { useDispatch } from 'react-redux';
+import { useGoogleLogin } from "@react-oauth/google";
+import api from '../../../config/apiConfig';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+import {setUser,setAuthenticated , setAccessToken} from '../../../redux/slice/authSlice';
+
+
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -54,6 +60,47 @@ const Signup = () => {
             </p>
         </Modal>
     );
+
+    const handleGoogleResponse = async (response) => {
+        setLoading(true);
+        try {
+            if (response["code"]) {
+                const res = await api.post(
+                    `${BASE_URL}/api/user/google-signup`,
+                    {
+                        code: response["code"],
+                    }
+                );
+
+                if (res?.data?.success) {
+                    if (res?.data?.success === true) {
+                        console.log("Google Sign-In Response:", res?.data);
+
+                        dispatch(setUser(res?.data?.user));
+                        dispatch(setAuthenticated(true));
+                        dispatch(setAccessToken(res?.data?.token));
+                        form.resetFields();
+                        navigate("/home");
+                        toast.success("Login Successful");
+                    }
+                } else {
+                    toast.error("Sign-In Failed");
+                }
+            }
+        } catch (error) {
+            console.error("Google Sign-In Error:", error);
+            toast.error("Sign-In Failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const handleGoogleSignin = useGoogleLogin({
+        onSuccess: handleGoogleResponse,
+        onError: handleGoogleResponse,
+        flow: "auth-code",
+    });
 
     return (
         <div className="signup-container">
@@ -191,6 +238,7 @@ const Signup = () => {
                     size="large"
                     block
                     icon={<GoogleOutlined />}
+                    onClick={handleGoogleSignin}
                 >
                     Continue with Google
                 </Button>

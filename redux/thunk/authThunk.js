@@ -1,12 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+// import api from "api";
 import { BASE_URL } from "../../config/appConfig";
+
+import api from "../../config/apiConfig";
 
 const signupUser = createAsyncThunk(
   "user/signup",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/user/signup`, values, {
+      const res = await api.post(`${BASE_URL}/api/user/signup`, values, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -29,7 +31,7 @@ const loginUser = createAsyncThunk(
   "user/loginUser",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/user/login`, values, {
+      const res = await api.post(`${BASE_URL}/api/user/login`, values, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -52,7 +54,7 @@ const forgotPassword = createAsyncThunk(
   "user/loginUser",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `${BASE_URL}/api/user/forgot-password`,
         values,
         {
@@ -79,7 +81,7 @@ const getUserDetail = createAsyncThunk(
   "user/getUserDetail",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/user/user-detail`, {
+      const res = await api.get(`${BASE_URL}/api/user/user-detail`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -103,7 +105,7 @@ const updateUserDetail = createAsyncThunk(
   "user/updateUserDetail",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/user/user-detail`,values, {
+      const res = await api.post(`${BASE_URL}/api/user/user-detail`,values, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -128,7 +130,7 @@ const resetPassword = createAsyncThunk(
   "user/resetPassword",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/user/reset-password`,values, {
+      const res = await api.post(`${BASE_URL}/api/user/reset-password`,values, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

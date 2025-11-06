@@ -1,13 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../config/apiConfig";
 import { BASE_URL } from "../../config/appConfig";
+
 
 
 const createAddress = createAsyncThunk(
   "address/createAddress",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/address/create-address`, values, {
+      const res = await api.post(`${BASE_URL}/api/address/create-address`, values, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -30,7 +31,7 @@ const getAddress = createAsyncThunk(
   "address/getAddress",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/address/get-addresses`, {
+      const res = await api.get(`${BASE_URL}/api/address/get-addresses`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -55,7 +56,7 @@ const deleteAddress = createAsyncThunk(
   "address/deleteAddress",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await axios.delete(`${BASE_URL}/api/address/delete-addresses/${id}`, {
+      const res = await api.delete(`${BASE_URL}/api/address/delete-addresses/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -80,7 +81,7 @@ const setDefaultAddress = createAsyncThunk(
   "address/setDefaultAddress",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await axios.put(`${BASE_URL}/api/address/set-default/${id}`,{}, {
+      const res = await api.put(`${BASE_URL}/api/address/set-default/${id}`,{}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -106,7 +107,7 @@ const updateAddress = createAsyncThunk(
   "address/updateAddress",
   async ({id,data}, { rejectWithValue }) => {
     try {
-      const res = await axios.put(`${BASE_URL}/api/address/update-address/${id}`,data, {
+      const res = await api.put(`${BASE_URL}/api/address/update-address/${id}`,data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

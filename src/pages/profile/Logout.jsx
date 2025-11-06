@@ -3,16 +3,22 @@ import { Button, Typography } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../../../redux/slice/authSlice";
+
+import { useDispatch } from 'react-redux';
 
 const { Title, Text } = Typography;
 
 const Logout = () => {
 
-    const navigate=useNavigate()
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate()
     const handleOk = () => {
-        localStorage.setItem("accessToken",null)
-        localStorage.setItem("user",null)
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
         navigate("/login")
+        dispatch(logout())
     };
 
     return (

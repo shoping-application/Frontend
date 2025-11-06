@@ -18,10 +18,30 @@ import AboutUs from "./pages/aboutUs/AboutUs"
 import CatagoryProduct from "./pages/catagoryProduct/CatagoryProduct"
 import Product from "./pages/Products";
 
+import PropTypes from "prop-types";
+
 import Dashboard from "./admin/Dashboard"
 import OrderSuccess from "./pages/payment/OrderSuccess";
 import ResetPassword from "./pages/auth/ResetPassword";
+
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 function App() {
+
+
+  const GoogleAuthWrapper = ({ children }) => {
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        {children}
+      </GoogleOAuthProvider>
+    );
+  };
+
+  GoogleAuthWrapper.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
 
   return (
     <>
@@ -35,14 +55,14 @@ function App() {
           <Route path="/payment" element={<Payment />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/helpAndSupport" element={<HelpSupport />} />
-          <Route path="/" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<GoogleAuthWrapper><Signup /></GoogleAuthWrapper>} />
+          <Route path="/login" element={<GoogleAuthWrapper><Login /></GoogleAuthWrapper>} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/catagoryProduct" element={<CatagoryProduct />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/product" element={<Product />} />
-          <Route path="/reseat-password" element={<ResetPassword/>}/>
+          <Route path="/reseat-password" element={<ResetPassword />} />
 
           {/* Admin */}
 

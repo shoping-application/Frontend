@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Card, Checkbox, Slider, Button, Input, Rate, Spin, Row, Col, Typography, Tag } from 'antd';
-import { FilterOutlined, ShoppingCartOutlined, ShareAltOutlined, StarFilled } from '@ant-design/icons';
+import { FilterOutlined, RightOutlined, CloseOutlined, ShoppingCartOutlined, ShareAltOutlined, StarFilled } from '@ant-design/icons';
 import Header from './header/Header';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProduct, search } from "../../redux/thunk/productThunk";
@@ -21,11 +21,22 @@ const Product = () => {
   const [query, setQuery] = useState(initialQuery);
   const searchInputRef = useRef(null);
 
+  const [isMobileFilterVisible, setIsMobileFilterVisible] = useState(false);
+
+  const toggleFilters = () => {
+    setIsMobileFilterVisible(prev => !prev);
+  };
+
   const dispatch = useDispatch();
   const navigate = useNavigate()
 
   const { product: products, loading } = useSelector((state) => state.product);
   const { searchedProduct } = useSelector((state) => state.product);
+
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (query) {
@@ -46,6 +57,8 @@ const Product = () => {
     }
   }, [initialQuery]);
 
+
+
   const [filters, setFilters] = useState({
     categories: [],
     brands: [],
@@ -59,8 +72,10 @@ const Product = () => {
 
   // Get categories and brands from searchedProduct if available, otherwise from products
   const getFilterData = () => {
-    const sourceData = searchedProduct?.length > 0 ? searchedProduct : products;
-    
+    // const sourceData = searchedProduct?.length > 0 ? searchedProduct : products;
+
+    const sourceData = query ? searchedProduct : products;
+
     const categories = [...new Set(sourceData?.map(product => product.category) || [])]
       .filter(category => category)
       .map(category =>
@@ -109,8 +124,10 @@ const Product = () => {
 
   // Filter logic for both searched products and regular products
   const getFilteredProducts = () => {
-    const sourceData = searchedProduct?.length > 0 ? searchedProduct : products;
-    
+    // const sourceData =( query && searchedProduct?.length > 0) ? searchedProduct : products;
+
+    const sourceData = query ? searchedProduct : products;
+
     return sourceData?.filter(product => {
       if (!product) return false;
 
@@ -209,7 +226,6 @@ const Product = () => {
     [dispatch]
   );
 
-  // ✅ Handle input change
   const handleSearch = useCallback(
     (e) => {
       const value = e.target.value;
@@ -244,15 +260,31 @@ const Product = () => {
     );
   }
 
+
   return (
     <>
       <Header />
 
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col sm:flex-row gap-8">
+
+            <div className="sm:hidden flex justify-end mb-4">
+              <Button
+                type="default"
+                icon={isMobileFilterVisible ? <CloseOutlined /> : <FilterOutlined />}
+                onClick={toggleFilters}
+                className="!bg-green-100 !border-green-300 !text-green-700"
+              >
+                {isMobileFilterVisible ? 'Hide Filters' : 'Show Filters'}
+              </Button>
+            </div>
             {/* Filters Sidebar */}
-            <div className="lg:w-1/5">
+            <div className= {`
+        ${isMobileFilterVisible ? 'block' : 'hidden'} 
+        sm:block
+        w-full sm:w-1/3 md:w-1/4 lg:w-1/5
+      `}>
               <Card
                 title={
                   <div className="flex items-center justify-between">
@@ -364,7 +396,11 @@ const Product = () => {
             </div>
 
             {/* Products Grid */}
-            <div className="lg:w-4/5">
+            <div className={`
+        ${isMobileFilterVisible ? 'hidden sm:block' : 'block'}
+        
+        w-full sm:w-2/3 md:w-3/4 lg:w-4/5
+      `}>
               <div className="flex flex-row items-center justify-between w-full">
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold text-green-600">FreshCart</h1>
@@ -387,7 +423,7 @@ const Product = () => {
               {/* Results Header */}
               <div className="flex justify-between items-center mb-6 mt-4">
                 <Text className="text-gray-600">
-                  {searchedProduct?.length > 0 
+                  {query > 0
                     ? `Showing ${filteredProducts?.length} of ${searchedProduct?.length} search results`
                     : `Showing ${filteredProducts?.length} of ${products?.length || 0} products`
                   }
@@ -530,23 +566,44 @@ const Product = () => {
                 <div className="text-center py-16">
                   <div className="text-6xl mb-4">🍎</div>
                   <Title level={4} className="!text-gray-600">
-                    {searchedProduct?.length > 0 
-                      ? "No search results found matching your filters"
+                    {query
+                      ? "No search results found matching your search"
                       : "No products found matching your filters"
                     }
                   </Title>
                   <Text className="text-gray-500">
-                    Try adjusting your filters to see more results
+
+                    {query
+                      ? "Try adjusting your search to see more results"
+                      : "Try adjusting your filters to see more results"
+                    }
                   </Text>
-                  <Button
-                    type="primary"
-                    className="mt-4 bg-green-600 border-green-600"
-                    onClick={clearAllFilters}
-                  >
-                    Clear All Filters
-                  </Button>
+
+                  {query
+                    ? (
+                      <Button
+                        type="primary"
+                        className="mt-4 ml-7 bg-green-600 hover:!bg-green-700 border-green-600"
+                        onClick={() => setQuery("")}
+                      >
+                        Clear Search
+                      </Button>
+                    )
+                    : (
+                      <Button
+                        type="primary"
+                        className="mt-4 ml-7 bg-green-600 hover:!bg-green-700 border-green-600"
+                        onClick={clearAllFilters}
+                      >
+                        Clear All Filters
+                      </Button>
+                    )
+                  }
+
                 </div>
               )}
+
+
             </div>
           </div>
         </div>

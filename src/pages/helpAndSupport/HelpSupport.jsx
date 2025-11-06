@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Header from '../header/Header';
-import { Drawer, Input, Button, Form,Modal, message } from 'antd';
+import { Drawer, Input, Button, Form,Modal } from 'antd';
 import { toast } from 'react-toastify';
 
 const HelpSupport = () => {
@@ -83,14 +83,14 @@ const HelpSupport = () => {
 
   const handleCallRequest = () => {
     setIsCallModalVisible(false);
-    message.success('Our team will call you within 30 minutes!');
+    toast.info('Your call back request sent! Please keep your phone nearby.');
   };
 
   const handleEmailSubmit = (values) => {
     console.log('Email form values:', values);
     setIsEmailModalVisible(false);
     emailForm.resetFields();
-    toast.success('Your message has been sent! We will reply within 24 hours.');
+    toast.info('Your message has been sent! We will reply within 24 hours.');
   };
 
   const handleChatSubmit = (values) => {
@@ -99,6 +99,8 @@ const HelpSupport = () => {
     chatForm.resetFields();
     toast.success('Chat session started! Our agent will be with you shortly.');
   };
+
+
 
   return (
     <div>

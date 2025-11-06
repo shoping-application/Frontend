@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../config/apiConfig";
 
 import { BASE_URL } from "../../config/appConfig";
 
@@ -8,7 +8,7 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({  product, quantity }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `${BASE_URL}/api/userCart/add-to-cart`,
         { product, quantity },
         {
@@ -29,7 +29,7 @@ export const getUserCart = createAsyncThunk(
   "cart/getUserCart",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/userCart/get-cart`, {
+      const res = await api.get(`${BASE_URL}/api/userCart/get-cart`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -48,7 +48,7 @@ export const updateCartItem = createAsyncThunk(
   "cart/updateCartItem",
   async ({ id, quantity }, { rejectWithValue }) => {
     try {
-      const res = await axios.put(
+      const res = await api.put(
         `${BASE_URL}/api/userCart/${id}`,
         { quantity },
         {
@@ -69,7 +69,7 @@ export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${BASE_URL}/api/userCart/${id}`, {
+      await api.delete(`${BASE_URL}/api/userCart/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -86,7 +86,7 @@ export const clearCart = createAsyncThunk(
   "cart/clearCart",
   async (_, { rejectWithValue }) => {
     try {
-      await axios.delete(`${BASE_URL}/api/userCart/clear`, {
+      await api.delete(`${BASE_URL}/api/userCart/clear`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -102,7 +102,7 @@ export const getAllOrders = createAsyncThunk(
   "cart/getAllOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/userCart/get-all-order`, {
+      const res = await api.get(`${BASE_URL}/api/userCart/get-all-order`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -121,7 +121,7 @@ export const getAllAdminOrders = createAsyncThunk(
   "cart/getAllAdminOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/userCart/get-all-order-in-admin`, {
+      const res = await api.get(`${BASE_URL}/api/userCart/get-all-order-in-admin`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -139,7 +139,7 @@ export const updateOrderStatus = createAsyncThunk(
   "cart/updateOrderStatus",
   async ({orderId,status}, { rejectWithValue }) => {
     try {
-      const res = await axios.put(`${BASE_URL}/api/userCart/update-status/${orderId}`,{ status }, {
+      const res = await api.put(`${BASE_URL}/api/userCart/update-status/${orderId}`,{ status }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

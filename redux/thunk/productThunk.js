@@ -1,12 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../config/apiConfig";
 import { BASE_URL } from "../../config/appConfig";
+
+
 
 const getProduct = createAsyncThunk(
   "product/getProduct",
   async (catagory, { rejectWithValue }) => {
     try {
-      const res = await axios.get(
+      const res = await api.get(
         `${BASE_URL}/api/products/get-product/${catagory}`,
         {
           headers: {
@@ -33,7 +35,7 @@ const createProduct = createAsyncThunk(
   "product/createProduct",
   async (values, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `${BASE_URL}/api/products/create-product`,
         values,
         {
@@ -61,7 +63,7 @@ const updateProduct = createAsyncThunk(
   "product/updateProduct",
   async ({ id, ...values }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `${BASE_URL}/api/products/update-product/${id}`,
         values,
         {
@@ -89,7 +91,7 @@ const createOrder = createAsyncThunk(
   "product/createOrder",
   async ({ values }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `${BASE_URL}/api/products/create-order`,
         values,
         {
@@ -117,7 +119,7 @@ const verifyPayment = createAsyncThunk(
   "product/verifyPayment",
   async (paymentResponse, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `${BASE_URL}/api/products/verify-payment`,
         {
           razorpay_order_id: paymentResponse.razorpay_order_id,
@@ -149,7 +151,7 @@ const search = createAsyncThunk(
   "product/search",
   async (value, { rejectWithValue }) => {
     try {
-      const res = await axios.get(
+      const res = await api.get(
         `${BASE_URL}/api/products/search?query=${encodeURIComponent(value)}`,
         {
           headers: {

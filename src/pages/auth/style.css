@@ -125,6 +125,17 @@
     color: #40bb46 !important;
 }
 
+.login-options-aligned {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%; 
+}
+
+.login-options-aligned .remember-me {
+    margin-bottom: 0;
+}
+
 .ant-divider-inner-text {
     color: #689f38;
     font-size: 14px;
@@ -241,7 +252,8 @@
 }
 
 .forgot-password-link:hover {
-  color: #2e7d32;
+  color: #1a451c;
+  text-decoration: underline;
 }
 
 .login-button {
@@ -399,6 +411,12 @@
 .remember-me .ant-checkbox-wrapper {
   color: #558b2f;
 }
+
+.remember-me :hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+
 
 .remember-me .ant-checkbox-checked .ant-checkbox-inner {
   background-color: #689f38;

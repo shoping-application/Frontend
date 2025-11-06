@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Form, Input, Button, Checkbox, Card, Divider } from 'antd';
 import { GoogleOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './style.css';
 import { useDispatch } from 'react-redux';
 import { loginUser } from "../../../redux/thunk/authThunk"
-
+import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from '../../../config/apiConfig';
+import {setUser,setAuthenticated , setAccessToken} from '../../../redux/slice/authSlice';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -29,6 +33,48 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const handleGoogleResponse = async (response) => {
+    setLoading(true);
+    try {
+      if (response["code"]) {
+        const res = await api.post(
+          `${BASE_URL}/api/user/google-signup`,
+          {
+            code: response["code"],
+          }
+        );
+
+        if (res?.data?.success) {
+          if (res?.data?.success === true) {
+            console.log("Google Sign-In Response:", res?.data);
+
+             dispatch(setUser(res?.data?.user));
+             dispatch(setAuthenticated(true));
+             dispatch(setAccessToken(res?.data?.token));
+            form.resetFields();
+            navigate("/home");
+            toast.success("Login Successful");
+          }
+        } else {
+          toast.error("Sign-In Failed");
+        }
+      }
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      toast.error("Sign-In Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleGoogleSignin = useGoogleLogin({
+    onSuccess: handleGoogleResponse,
+    onError: handleGoogleResponse,
+    flow: "auth-code",
+  });
+
 
 
   return (
@@ -79,7 +125,7 @@ const Login = () => {
             />
           </Form.Item>
 
-          <div className="login-options">
+          {/* <div className="login-options">
             <Form.Item name="remember" valuePropName="checked" className="remember-me">
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
@@ -87,7 +133,19 @@ const Login = () => {
             <a className="forgot-password-link" href="/forgot-password">
               Forgot your password?
             </a>
+          </div> */}
+
+
+          <div className="login-options-aligned mb-5">
+            <Form.Item name="remember" valuePropName="checked" className="remember-me">
+              <Checkbox>Remember me</Checkbox>
+            </Form.Item>
+
+            <Link to="/forgot-password" className="forgot-password-link">
+              Forgot your password?
+            </Link>
           </div>
+
 
           <Form.Item>
             <Button
@@ -110,6 +168,7 @@ const Login = () => {
           size="large"
           block
           icon={<GoogleOutlined />}
+          onClick={handleGoogleSignin}
         >
           Continue with Google
         </Button>

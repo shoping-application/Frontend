@@ -14,6 +14,8 @@ import {
     SafetyOutlined,
 } from "@ant-design/icons";
 
+import { useNavigate } from 'react-router-dom';
+
 import Alex from "../../assets/Alex.png"
 import Maria from "../../assets/Maria.png"
 import David from "../../assets/David.png"
@@ -25,6 +27,8 @@ import OurMission from "../../assets/aboutUs.png"
 const { Title, Paragraph, Text } = Typography;
 
 const AboutUs = () => {
+    const navigate = useNavigate();
+
     // Team members data
     const teamMembers = [
         {
@@ -70,6 +74,10 @@ const AboutUs = () => {
             desc: "Your satisfaction is our priority. Our support team is always ready to help with a smile.",
         },
     ];
+
+    const handleShoping = () => {
+        navigate("/product");
+    }
 
     return (
 
@@ -227,7 +235,7 @@ const AboutUs = () => {
              before:absolute before:top-0 before:left-0 before:h-full before:w-0 before:bg-green-700 before:transition-all before:duration-500 hover:before:w-full
              hover:text-white hover:border-green-700 "
                     >
-                        <span className="relative z-10">Start Shopping Now</span>
+                        <span onClick={handleShoping} className="relative z-10">Start Shopping Now</span>
                     </button>
                 </section>
 

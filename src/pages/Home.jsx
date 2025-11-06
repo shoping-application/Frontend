@@ -1,6 +1,6 @@
-import React, { useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { ShoppingCart, Search } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Spin, Button, Input } from 'antd';
 
 import Farm from "../assets/Farm.png";
@@ -15,9 +15,8 @@ import Dairy_Bread_Eggs from "../assets/Dairy,Bread_Eggs.webp"
 import Biscuits_Cookies from "../assets/Biscuits&Cookies.webp"
 import Skincare from "../assets/Skincare.jpeg"
 import Ice_Creams from "../assets/Ice_Creams.webp"
-
 import { useDispatch, useSelector } from 'react-redux';
-import { getProduct} from "../../redux/thunk/productThunk";
+import { getProduct } from "../../redux/thunk/productThunk";
 
 import { addToCart } from "../../redux/thunk/cartThunk"
 
@@ -53,7 +52,7 @@ const shopByCategory = [
 
 
 export default function HomePage() {
-
+  const location = useLocation();
   const [query, setQuery] = useState("");
 
   //searchedProduct
@@ -66,6 +65,10 @@ export default function HomePage() {
   const { searchedProduct } = useSelector((state) => state.product);
 
   console.log("searchedProduct", searchedProduct);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   useEffect(() => {
     dispatch(getProduct());
@@ -195,79 +198,10 @@ export default function HomePage() {
               View All
             </NavLink>
           </div>
-          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6 ">
-             {featuredProducts.map((p, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-3 px-2 rounded-lg shadow-md flex flex-col items-center group"
-              // onClick={() => handleProduct(p)}
-              >
-                <div className="w-full h-48 overflow-hidden rounded-md mb-3">
-                  <img
-                    src={p.img}
-                    alt={p.name}
-                    className="w-full h-full object-cover transform transition-transform duration-300 ease-in-out group-hover:scale-125"
-                  />
-                </div>
-
-                <h3 className="font-medium text-gray-800">{p.name}</h3>
-                <p className="text-sm text-gray-500">{p.weight}</p>
-                <p className="text-lg font-bold text-gray-800">₹ {p.price}</p>
-
-              </div>
-            ))} 
-          </div> */}
-          {/* 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {featuredProducts.slice(0, 5).map((p, idx) => (
-              <div
-                key={p._id || idx}
-                className="bg-white p-3 px-2 rounded-lg shadow-md flex flex-col items-center group cursor-pointer"
-
-              >
-
-                <div
-                  onClick={() => handleProductDesc(p)}
-                >
-
-                  <div className="w-full h-48 overflow-hidden rounded-md mb-3">
-                    <img
-                      src={p.images?.[0]?.url || p.img}
-                      alt={p.name}
-                      className="w-full h-full object-cover transform transition-transform duration-300 ease-in-out group-hover:scale-125"
-                    />
-                  </div>
-
-                  <h3 className="font-medium text-gray-800">{p.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    {p.weight?.value} {p.weight?.unit}
-                  </p>
-                  <p className="text-lg font-bold text-gray-800">₹ {p.price}</p>
-
-                </div>
-                <div className="flex space-x-3">
-                  <Button
-                    type="primary"
-                    icon={<ShoppingCartOutlined />}
-                    onClick={handleAddToCart}
-                    size="large"
-                    className="flex-1 h-12 text-lg font-semibold bg-green-600 hover:!bg-green-700 border-none"
-                  >
-                    Add to Cart
-                  </Button>
-                  <Button
-                    icon={<ShareAltOutlined className="text-gray-500 group-hover:text-green-600 transition-colors" />}
-                    onClick={shareProduct}
-                    size="large"
-                    className="h-14 w-14 border-gray-300 hover:!border-green-700"
-                  />
-                </div>
-              </div>
-            ))}
-          </div> */}
 
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 gap-4">
             {featuredProducts.slice(0, 5).map((p, idx) => (
               <div
                 key={p._id || idx}
@@ -297,14 +231,16 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                {/* Action buttons */}
+  
+
                 <div className="flex items-center justify-between mt-3 w-full space-x-2">
+                  {/* Add to Cart Button */}
                   <Button
                     type="primary"
                     icon={<ShoppingCartOutlined />}
                     onClick={() => handleAddToCart(p)}
-                    size="middle"
-                    className="flex-1 h-10 text-sm font-semibold bg-green-600 hover:!bg-green-700 border-none"
+                    // CHANGE 1: Use 'flex-grow' and 'min-w-0' for flexible scaling.
+                    className="flex-grow min-w-24 h-10 text-sm font-semibold bg-green-600 hover:!bg-green-700 border-none"
                   >
                     Add to Cart
                   </Button>
@@ -315,7 +251,7 @@ export default function HomePage() {
                     }
                     onClick={() => shareProduct(p)}
                     size="middle"
-                    className="h-10 w-10 flex items-center justify-center border-gray-300 hover:!border-green-600 rounded-md"
+                    className="h-10 w-10 flex-shrink-0 flex items-center justify-center border-gray-300 hover:!border-green-600 rounded-md"
                   />
                 </div>
               </div>
